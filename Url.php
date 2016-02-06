@@ -23,11 +23,7 @@ class Url extends \pdyn\datatype\Base {
 	 * @param string $text The text you want to work with.
 	 */
 	public function __construct($url) {
-		global $APP;
-		if ($url{0} === '/') {
-			$url = $APP->url($url);
-		}
-		if (\pdyn\datatype\Url::validate($url) !== true) {
+		if (static::validate($url) !== true) {
 			throw new \Exception('Bad URL passed to URL datatype.', 400);
 		}
 
