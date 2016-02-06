@@ -164,6 +164,26 @@ class Text extends \pdyn\datatype\Base {
 	}
 
 	/**
+	 * Force a value to UTF-8, then serialize.
+	 *
+	 * This is used before storing serialized values in the database. Since our DbDrivers convert all strings to UTF-8,
+	 * they can damage seralized data. For example, if non-utf8 text is contained in a serialized array, the offset recorded in the
+	 * serialized string may be not reflect the length after conversion to utf8.
+	 *
+	 * @param mixed $input A value to force to UTF-8 then serialize.
+	 * @return string A serialized UTF-8 value.
+	 */
+	public static function utf8safe_serialize($input) {
+		if (is_array($input)) {
+			return serialize(\pdyn\datatype\Text::force_utf8_array($input));
+		} elseif (is_string($input)) {
+			return serialize(\pdyn\datatype\Text::force_utf8($input));
+		} else {
+			return serialize($input);
+		}
+	}
+
+	/**
 	 * Generates a url-safe representation of string $s. Useful for generating URLs from strings (posts, pages, albums, etc)
 	 * Makes the following changes:
 	 *     Removed common TLDs because they look weird when converted
