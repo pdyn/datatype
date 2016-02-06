@@ -24,8 +24,8 @@ class UploadedFile extends \pdyn\datatype\Base {
 		if (!empty($orig_filename) && !is_scalar($orig_filename)) {
 			throw new \Exception('Uploaded file orig filename must be scalar or empty', 400);
 		}
-		$this->stored_filename = \pdyn\datatype\Sanitizer::filename($stored_filename);
-		$this->orig_filename = \pdyn\datatype\Sanitizer::filename($orig_filename);
+		$this->stored_filename = \pdyn\filesystem\FilesystemUtils::sanitize_filename($stored_filename);
+		$this->orig_filename = \pdyn\filesystem\FilesystemUtils::sanitize_filename($orig_filename);
 	}
 
 	/**
@@ -34,7 +34,7 @@ class UploadedFile extends \pdyn\datatype\Base {
 	 * @return string The mime type.
 	 */
 	public function get_analyzed_mimetype() {
-		return \atlas\filesystem\FilesystemUtils::get_mime_type($this->stored_filename);
+		return \pdyn\filesystem\FilesystemUtils::get_mime_type($this->stored_filename);
 	}
 
 	/**
