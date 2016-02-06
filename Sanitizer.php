@@ -16,4 +16,15 @@ class Sanitizer {
 			? preg_replace('/[^a-z0-9]+/iu', '', $s)
 			: '';
 	}
+
+	/**
+	 * Sanitizer a version string.
+	 *
+	 * @param string $version Input
+	 * @return string Output
+	 */
+	public static function versionstring($version) {
+		$version = preg_replace('#[^A-Za-z0-9-_\.]#', '', $version);
+		return $version;
+	}
 }
