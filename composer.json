@@ -1,0 +1,26 @@
+{
+    "name": "pdyn/datatype",
+    "description": "Collection of classes representing specific data types, and providing utilities to work with these types.",
+    "type": "library",
+    "keywords": ["datatype", "html", "time", "url", "validation", "sanitize"],
+    "homepage": "https://pdyn.net",
+    "license": "GPL-3.0+",
+    "authors": [
+        {
+            "name": "James McQuillan",
+            "email": "james@pdyn.net",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "support@pdyn.net"
+    },
+    "version": "1.0.0",
+    "require": {
+        "php": ">=5.4.0",
+        "pdyn/filesystem": ">=1.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": ">=5.1.7"
+    }
+}
