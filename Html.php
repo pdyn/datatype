@@ -141,7 +141,7 @@ class Html extends \pdyn\datatype\Base {
 	 *
 	 * @return array Array of image URLs from the HTML.
 	 */
-	public function extract_images($orderbysize = false, \atlas\cache\CacheInterface $cache = null) {
+	public function extract_images($orderbysize = false, \pdyn\cache\CacheInterface $cache = null) {
 		$images = $this->extract_tag('img');
 		$output = [];
 		foreach ($images as $image) {
@@ -161,12 +161,12 @@ class Html extends \pdyn\datatype\Base {
 		$output = array_keys($output);
 		// TODO: we need more protection here.
 		/*
-		if (false && $orderbysize === true && !empty($cache) && $cache instanceof \atlas\cache\CacheInterface) {
+		if (false && $orderbysize === true && !empty($cache) && $cache instanceof \pdyn\cache\CacheInterface) {
 			$imgSizes = [];
 			$i = 0;
 			$httpclient = new \pdyn\httpclient\HttpClient();
 			foreach ($images as $img) {
-				$imgRes = \atlas\http\HttpResource::instance($img, $cache, $httpclient);
+				$imgRes = \pdyn\http\HttpResource::instance($img, $cache, $httpclient);
 				$imgSizes[$img] = $imgRes->get_filesize();
 				$i++;
 				if ($i >= 10) {
