@@ -6,6 +6,7 @@ namespace pdyn\datatype\tests;
  *
  * @group pdyn
  * @group pdyn_datatype
+ * @codeCoverageIgnore
  */
 class TextTest extends \PHPUnit_Framework_TestCase {
 
@@ -158,5 +159,119 @@ class TextTest extends \PHPUnit_Framework_TestCase {
 		$plaintext = new \pdyn\datatype\Text($text);
 		$plaintext->truncate($length);
 		$this->assertEquals($expected, $plaintext->val());
+	}
+
+	/**
+	 * Dataprovider for test_removeWhitespace
+	 *
+	 * @return array Array of arrays of test parameters.
+	 */
+	public function dataprovider_removeWhitespace() {
+		return [
+			[
+				"a\nb\rc\td\0e f",
+				'abcdef',
+			],
+		];
+	}
+
+	/**
+	 * Tests remove_whitespace function.
+	 *
+	 * @dataProvider dataprovider_removeWhitespace
+	 * @param string $text Test text.
+	 * @param string $expected Expected outcome.
+	 */
+	public function test_removeWhitespace($text, $expected) {
+		$text = new \pdyn\datatype\Text($text);
+		$text->remove_whitespace();
+		$this->assertEquals($expected, $text->val());
+	}
+
+	/**
+	 * Dataprovider for test_generateColor
+	 *
+	 * @return array Array of arrays of test parameters.
+	 */
+	public function dataprovider_generateColor() {
+		$return = [];
+		for ($i = 0; $i < 10; $i++) {
+			$return[] = [sha1(uniqid(true))];
+		}
+		return $return;
+	}
+
+	/**
+	 * Tests generate_color function.
+	 *
+	 * @dataProvider dataprovider_generateColor
+	 */
+	public function test_generateColor($text) {
+		$text = new \pdyn\datatype\Text($text);
+
+		$rgb = $text->generate_color();
+		$this->assertInternalType('array', $rgb);
+		$this->assertArrayHasKey('r', $rgb);
+		$this->assertArrayHasKey('g', $rgb);
+		$this->assertArrayHasKey('b', $rgb);
+		$this->assertTrue(is_int($rgb['r']));
+		$this->assertTrue(($rgb['r'] >= 0 && $rgb['r'] <= 255));
+		$this->assertTrue(is_int($rgb['g']));
+		$this->assertTrue(($rgb['g'] >= 0 && $rgb['g'] <= 255));
+		$this->assertTrue(is_int($rgb['b']));
+		$this->assertTrue(($rgb['b'] >= 0 && $rgb['b'] <= 255));
+
+		$hex = $text->generate_color(true);
+		$this->assertInternalType('string', $hex);
+		$hexlen = strlen($hex);
+		$this->assertTrue($hexlen === 6);
+		for ($i = 0; $i < $hexlen; $i++) {
+			$validhex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+			$this->assertTrue(in_array($hex{$i}, $validhex));
+		}
+	}
+
+	/**
+	 * Dataprovider for test_makeSlug
+	 *
+	 * @return array Array of arrays of test parameters.
+	 */
+	public function dataprovider_makeSlug() {
+		return [
+			'lowercase' => [
+				'TEST',
+				'test',
+			],
+			'reserved' => [
+				'me',
+				'me_1',
+			],
+			'reserved2' => [
+				'type',
+				'type_1',
+			],
+			'domain' => [
+				'example.com',
+				'example',
+			],
+			'quotes' => [
+				'James\'s',
+				'jamess',
+			],
+			'nonalphanum' => [
+				'this is a test!',
+				'this_is_a_test',
+			],
+		];
+	}
+
+	/**
+	 * Tests make_slug function.
+	 *
+	 * @dataProvider dataprovider_makeSlug
+	 */
+	public function test_makeSlug($text, $expected) {
+		$actual = \pdyn\datatype\Text::make_slug($text);
+		$this->assertEquals($expected, $actual);
 	}
 }

@@ -105,9 +105,9 @@ class Text extends \pdyn\datatype\Base {
 		$colors = implode('', $colorsparts);
 
 		$bgcolor = [
-			'r' => round((mb_substr($colors, 3, 3) / 1000) * 255),
-			'g' => round((mb_substr($colors, 0, 3) / 1000) * 255),
-			'b' => round((mb_substr($colors, 6, 3) / 1000) * 255),
+			'r' => (int)round((mb_substr($colors, 3, 3) / 1000) * 255),
+			'g' => (int)round((mb_substr($colors, 0, 3) / 1000) * 255),
+			'b' => (int)round((mb_substr($colors, 6, 3) / 1000) * 255),
 		];
 
 		foreach ($bgcolor as $c => $val) {
@@ -117,10 +117,13 @@ class Text extends \pdyn\datatype\Base {
 		}
 
 		if ($hex === true) {
-			$bgcolor = dechex($bgcolor['r']).dechex($bgcolor['g']).dechex($bgcolor['b']);
+			$output = str_pad(dechex($bgcolor['r']), 2, '0', STR_PAD_LEFT);
+			$output .= str_pad(dechex($bgcolor['g']), 2, '0', STR_PAD_LEFT);
+			$output .= str_pad(dechex($bgcolor['b']), 2, '0', STR_PAD_LEFT);
+			return $output;
+		} else {
+			return $bgcolor;
 		}
-
-		return $bgcolor;
 	}
 
 	/**
@@ -201,10 +204,10 @@ class Text extends \pdyn\datatype\Base {
 			$s .= '_1';
 		}
 
-		//remove common TLDs because they look weird when you get something like CNN.com => cnncom :/
+		// Remove common TLDs because they look weird when you get something like CNN.com => cnncom :/
 		$s = preg_replace('/\.com|\.org|\.net /iu', '', $s);
 
-		//remove quotes first because it's dumb to have ex. "Joe's" convert to "joe_s", "joes" is better :)
+		// Remove quotes first because it's dumb to have ex. "Joe's" convert to "joe_s", "joes" is better :)
 		$s = preg_replace('/[\'\".]+/iu', '', $s);
 
 		$s = preg_replace('/[^a-z0-9]+/iu', '_', $s);

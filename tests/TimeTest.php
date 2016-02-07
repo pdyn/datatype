@@ -8,6 +8,7 @@ use \pdyn\datatype\Time;
  *
  * @group pdyn
  * @group pdyn_datatype
+ * @codeCoverageIgnore
  */
 class TimeTest extends \PHPUnit_Framework_TestCase {
 	/**

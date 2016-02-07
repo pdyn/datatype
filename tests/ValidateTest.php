@@ -6,6 +6,7 @@ namespace pdyn\datatype\tests;
  *
  * @group pdyn
  * @group pdyn_datatype
+ * @codeCoverageIgnore
  */
 class ValidateTest extends \PHPUnit_Framework_TestCase {
 
@@ -81,21 +82,6 @@ class ValidateTest extends \PHPUnit_Framework_TestCase {
 		$valid = array('test', 1, 1.0, '0', '1');
 		foreach ($valid as $val) {
 			$this->assertEquals(true, \pdyn\datatype\Validator::stringlike($val));
-		}
-	}
-
-	/**
-	 * Test validate id.
-	 */
-	public function test_validate_id() {
-		$valid = array(1, 1000, '10');
-		foreach ($valid as $i => $val) {
-			$this->assertEquals(true, \pdyn\datatype\Id::validate($val), 'Failed on value #'.$i);
-		}
-
-		$invalid = array(0, '0', true, false, null, array(), new \stdClass, 1.2, '1.0', 'test', -1, '-1');
-		foreach ($invalid as $i => $val) {
-			$this->assertEquals(false, \pdyn\datatype\Id::validate($val), 'Failed on value #'.$i);
 		}
 	}
 

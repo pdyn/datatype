@@ -25,7 +25,7 @@ abstract class Base {
 	 * @return string The result of the val() method.
 	 */
 	public function __toString() {
-		return $this->val();
+		return (string)$this->val();
 	}
 
 	/**

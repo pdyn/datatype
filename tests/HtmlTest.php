@@ -6,6 +6,7 @@ namespace pdyn\datatype\tests;
  *
  * @group pdyn
  * @group pdyn_datatype
+ * @codeCoverageIgnore
  */
 class HtmlTest extends \PHPUnit_Framework_TestCase {
 	/**

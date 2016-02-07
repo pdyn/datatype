@@ -11,6 +11,15 @@ class Url extends \pdyn\datatype\Base {
 	/** @var string The host of the URL. */
 	protected $host = '';
 
+	/** @var string The user accessing the URL. */
+	protected $user = null;
+
+	/** @var string The password used by the user. */
+	protected $pass = null;
+
+	/** @var string The port of the URL. */
+	protected $port = null;
+
 	/** @var string The path of the URL. */
 	protected $path = '';
 
@@ -29,14 +38,26 @@ class Url extends \pdyn\datatype\Base {
 
 		$urlparse = parse_url($url);
 
-		$this->scheme = (!empty($urlparse['scheme'])) ? $urlparse['scheme'] : 'http';
+		$this->scheme = (isset($urlparse['scheme'])) ? $urlparse['scheme'] : 'http';
 		$this->host = $urlparse['host'];
 
-		if (!empty($urlparse['path'])) {
+		if (isset($urlparse['user'])) {
+			$this->user = $urlparse['user'];
+		}
+
+		if (isset($urlparse['pass'])) {
+			$this->pass = $urlparse['pass'];
+		}
+
+		if (isset($urlparse['port'])) {
+			$this->port = $urlparse['port'];
+		}
+
+		if (isset($urlparse['path'])) {
 			$this->path = $urlparse['path'];
 		}
 
-		if (!empty($urlparse['query'])) {
+		if (isset($urlparse['query'])) {
 			parse_str($urlparse['query'], $this->query);
 		}
 	}
@@ -47,7 +68,22 @@ class Url extends \pdyn\datatype\Base {
 	 * @return mixed The raw value.
 	 */
 	public function val() {
-		$return = $this->scheme.'://'.$this->host.$this->path;
+		$return = $this->scheme.'://';
+
+		if ($this->user !== null) {
+			$return .= $this->user;
+			if ($this->pass !== null) {
+				$return .= ':'.$this->pass;
+			}
+			$return .= '@';
+		}
+		$return .= $this->host;
+
+		if ($this->port !== null) {
+			$return .= ':'.$this->port;
+		}
+
+		$return .= $this->path;
 		if (!empty($this->query)) {
 			$return .= '?'.http_build_query($this->query);
 		}
