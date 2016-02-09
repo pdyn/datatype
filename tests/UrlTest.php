@@ -172,6 +172,9 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
 	 * Test addquery function.
 	 *
 	 * @dataProvider dataprovider_addquery
+	 * @param string $url The base URL.
+	 * @param string $query The query to add.
+	 * @param string $expected Expected output.
 	 */
 	public function test_addquery($url, $query, $expected) {
 		$url = new \pdyn\datatype\Url($url);
@@ -218,6 +221,9 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
 	 * Test removequery function.
 	 *
 	 * @dataProvider dataprovider_removequery
+	 * @param string $url The base URL.
+	 * @param string $querykey The key of the query to remove.
+	 * @param string $expected Expected output.
 	 */
 	public function test_removequery($url, $querykey, $expected) {
 		$url = new \pdyn\datatype\Url($url);
@@ -275,6 +281,8 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
 	 * Test validate id.
 	 *
 	 * @dataProvider dataprovider_validate
+	 * @param string $test Test data.
+	 * @param string $expected Expected output.
 	 */
 	public function test_validate($test, $expected) {
 		$this->assertEquals($expected, \pdyn\datatype\Url::validate($test));
@@ -298,6 +306,7 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
 	 * Test successful construction with valid data.
 	 *
 	 * @dataProvider dataprovider_construct
+	 * @param string $data Test data.
 	 */
 	public function test_construct($data) {
 		$id = new \pdyn\datatype\Url($data);
@@ -321,8 +330,138 @@ class UrlTest extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @expectedException \Exception
 	 * @dataProvider dataprovider_invaliddata
+	 * @param string $data Test data.
 	 */
 	public function test_throwsExceptionOnInvalidId($data) {
 		$id = new \pdyn\datatype\Url($data);
+	}
+
+	/**
+	 * Dataprovider for test_getDomain function.
+	 *
+	 * @return array Array of tests.
+	 */
+	public function dataprovider_getDomain() {
+		return [
+			['http://example.com', true, 'example.com'],
+			['http://example.com', false, 'example.com'],
+			['http://www.example.com', true, 'example.com'],
+			['http://www.example.com', false, 'example.com'],
+			['http://one.example.com', true, 'one.example.com'],
+			['http://one.example.com', false, 'example.com'],
+			['http://www.one.example.com', true, 'one.example.com'],
+			['http://www.one.example.com', false, 'example.com'],
+			['http://one.two.example.com', true, 'one.two.example.com'],
+			['http://one.two.example.com', false, 'example.com'],
+			['http://www.one.two.example.com', true, 'one.two.example.com'],
+			['http://www.one.two.example.com', false, 'example.com'],
+			['http://one.two.example.com/three/', true, 'one.two.example.com'],
+			['http://one.two.example.com/three/', false, 'example.com'],
+			['http://one.two.example.com/three/four.html', true, 'one.two.example.com'],
+			['http://one.two.example.com/three/four.html', false, 'example.com'],
+		];
+	}
+
+	/**
+	 * Test get_domain function.
+	 *
+	 * @dataProvider dataprovider_getDomain
+	 * @param string $test The test URL.
+	 * @param string $includesubdomains Whether to include subdomains.
+	 * @param string $expected The expected output.
+	 */
+	public function test_getDomain($test, $includesubdomains, $expected) {
+		$url = new \pdyn\datatype\Url($test);
+		$actual = $url->get_domain($includesubdomains);
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * Dataprovider for test_normalize function.
+	 *
+	 * @return array Array of tests.
+	 */
+	public function dataprovider_normalize() {
+		$schemes = ['', '//', 'http://', 'https://', 'ftp://'];
+		$userparams = ['', 'james@', 'james:1234@'];
+		$domains = ['example', 'example.com', 'www.example.com', 'one.two.example.com'];
+		$portparams = ['', ':1234'];
+		$paths = ['', '/', '/test.html', '/test/test2.html'];
+
+		$return = [];
+		foreach ($schemes as $scheme) {
+			foreach ($userparams as $userparam) {
+				foreach ($domains as $domain) {
+					foreach ($portparams as $portparam) {
+						foreach ($paths as $path) {
+							$test = $scheme.$userparam.$domain.$portparam.$path;
+
+							$expected = '';
+							$expected .= ($scheme === '' || $scheme === '//') ? 'http://' : $scheme;
+							$expected .= $userparam.$domain.$portparam;
+							$expected .= ($path === '') ? '/' : $path;
+
+							$return[] = [$test, $expected];
+						}
+					}
+				}
+			}
+		}
+		return $return;
+	}
+
+	/**
+	 * Test normalize method.
+	 *
+	 * @dataProvider dataprovider_normalize
+	 * @param string $test Test text.
+	 * @param string $expected Expected output.
+	 */
+	public function test_normalize($test, $expected) {
+		$actual = \pdyn\datatype\Url::normalize($test);
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * Dataprovider for test_getCleanUrl function.
+	 *
+	 * @return array Array of tests.
+	 */
+	public function dataprovider_getCleanUrl() {
+		$protocols = ['http://', 'https://', 'ftp://'];
+		$prefixes = ['', 'james@', 'james:1234@'];
+		$domains = ['example.com', 'one.example.com', 'one.two.example.com'];
+		$suffixes = ['', ':80', ':8080'];
+		$files = ['', '/', '/one', '/one/', '/one/two', '/one/two/', '/test.html', '/one/test.html', '/one/two/test.html'];
+
+		$return = [];
+		foreach ($protocols as $a) {
+			foreach ($prefixes as $b) {
+				foreach ($domains as $c) {
+					foreach ($suffixes as $d) {
+						foreach ($files as $e) {
+							$test = $a.$b.$c.$d.$e;
+							$e_no_trailing_slash = (!empty($e) && mb_substr($e, -1) === '/') ? mb_substr($e, 0, -1) : $e;
+							$expected = $b.$c.$d.$e_no_trailing_slash;
+
+							$return[] = [$test, $expected];
+						}
+					}
+				}
+			}
+		}
+		return $return;
+	}
+
+	/**
+	 * Test get_clean_url method.
+	 *
+	 * @dataProvider dataprovider_getCleanUrl
+	 * @param string $test Test text.
+	 * @param string $expected Expected output.
+	 */
+	public function test_getCleanUrl($test, $expected) {
+		$actual = \pdyn\datatype\Url::get_clean_url($test);
+		$this->assertEquals($expected, $actual);
 	}
 }

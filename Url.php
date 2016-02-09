@@ -147,6 +147,23 @@ class Url extends \pdyn\datatype\Base {
 	}
 
 	/**
+	 * Gets the domain name of the URL.
+	 *
+	 * @param bool $includesubdomains Whether to include any subdomains in the URL, or just the main domain name.
+	 */
+	public function get_domain($includesubdomains = true) {
+		preg_match('#(?:http|https)://(?:www\.)?([^/]+)/?#i', $this->val(), $matches);
+		$domain = (!empty($matches[1])) ? $matches[1] : '';
+
+		if ($includesubdomains === false) {
+			$parts = explode('.', $domain);
+			return implode('.', array_slice($parts, -2));
+		} else {
+			return $domain;
+		}
+	}
+
+	/**
 	 * Validate datatype.
 	 *
 	 * @param mixed $input Value to validate.
@@ -227,5 +244,83 @@ class Url extends \pdyn\datatype\Base {
 		}
 
 		return $input;
+	}
+
+	/**
+	 * Normalize a partial URL string to a full URL.
+	 *
+	 * @param string $uri A partial URL string. Ex. google.com
+	 * @param bool $xri Whether the URL is an xri
+	 * @return string The normalized URL.
+	 */
+	public static function normalize($uri, $xri = false) {
+		if (empty($uri)) {
+			return false;
+		}
+
+		$uri = trim($uri);
+
+
+		if ($uri{0} === '/' && $uri{1} === '/') {
+			// URIs like '//example.com';
+			$uri = 'http:'.$uri;
+		}
+
+		$uparts = @parse_url($uri);
+		if (!$uparts) {
+			return false;
+		}
+
+		$validXRIfirstChars = ['=', '@', '+', '$', '!', '('];
+
+		if (!empty($uparts['scheme']) && $uparts['scheme'] === 'xri') {
+			$uri = mb_substr($uri, 6);
+			$uparts['scheme'] = '';
+		}
+
+		if (empty($uparts['scheme'])) {
+			// If we have no start scheme and start with a valid XRI global context, just return.
+			if (in_array(mb_substr($uri, 0, 1), $validXRIfirstChars, true)) {
+				return ($xri === true) ? $uri : false;
+			}
+			$uri = 'http://'.$uri;
+			$uparts = parse_url($uri);
+		} elseif (empty($uparts['host'])) {
+			$uri = 'http://'.$uri;
+			$uparts = parse_url($uri);
+		}
+
+		$uri = $uparts['scheme'].'://';
+		if (!empty($uparts['user'])) {
+			$userpart = $uparts['user'];
+		}
+		if (!empty($uparts['pass'])) {
+			$userpart .= ':'.$uparts['pass'];
+		}
+		if (!empty($uparts['user'])) {
+			$uri .= $userpart.'@';
+		}
+		$uri .= $uparts['host'];
+		if (!empty($uparts['port'])) {
+			$uri .= ':'.$uparts['port'];
+		}
+		$uri .= (!empty($uparts['path'])) ? $uparts['path'] : '/';
+		if (!empty($uparts['query'])) {
+			$uri .= '?'.$uparts['query'];
+		}
+
+		return $uri;
+	}
+
+	/**
+	 * Get a "clean" representation of a URL. Strip the protocol and clean it up. Use for display purposes only!
+	 *
+	 * @param string $url The URL to clean.
+	 * @return string The cleaned URL.
+	 */
+	public static function get_clean_url($url) {
+		$url = preg_replace('#^(.+)://#iUms', '', $url);
+		$url = rtrim($url, '/');
+		return $url;
 	}
 }
