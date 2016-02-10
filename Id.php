@@ -48,6 +48,6 @@ class Id extends \pdyn\datatype\Base {
 	 * @return bool Value is valid or not.
 	 */
 	public static function validate($input) {
-		return (\pdyn\datatype\Validator::intlike($input) && (int)$input >= 1);
+		return (\pdyn\datatype\Validator::intlike($input) && (int)$input >= 0);
 	}
 }
