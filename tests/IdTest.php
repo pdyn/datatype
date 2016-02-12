@@ -39,7 +39,7 @@ class IdTest extends \PHPUnit_Framework_TestCase {
 	 * @return array Array of valid data.
 	 */
 	protected function get_valid_data() {
-		return [1, 1000, '10'];
+		return [1, 1000, '10', 0, '0'];
 	}
 
 	/**
@@ -48,7 +48,7 @@ class IdTest extends \PHPUnit_Framework_TestCase {
 	 * @return array Array of invalid data.
 	 */
 	protected function get_invalid_data() {
-		return [0, '0', true, false, null, array(), new \stdClass, 1.2, '1.0', 'test', -1, '-1'];
+		return [true, false, null, array(), new \stdClass, 1.2, '1.0', 'test', -1, '-1'];
 	}
 
 	/**
