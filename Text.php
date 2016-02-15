@@ -64,6 +64,18 @@ class Text extends \pdyn\datatype\Base {
 	}
 
 	/**
+	 * Quick sanitize function to ensure safe displayable text.
+	 *
+	 * @param string $str Input text.
+	 * @return string Sanitized text.
+	 */
+	public static function displaysafe($str) {
+		$str = new static($str);
+		$str->sanitize(false);
+		return $str->val();
+	}
+
+	/**
 	 * Sanitize the text for display.
 	 *
 	 * @param bool $striptags If true, will remove all html tags. If false, will just htmlentities() them.
